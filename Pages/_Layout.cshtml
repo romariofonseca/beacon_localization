@@ -1,0 +1,73 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@using System
+
+@{
+    var isLoginPage = Context.Request.Path.Value.Equals("/Login", StringComparison.OrdinalIgnoreCase);
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+
+    <style>
+        body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        .sidebar { width: 80px; background-color: #3C4A5B; position: fixed; top: 0; bottom: 0; left: 0; padding-top: 20px; z-index: 100; }
+        .sidebar a { display: block; color: #ccc; text-align: center; padding: 20px 0; text-decoration: none; transition: background-color 0.3s; }
+        .sidebar a:hover { background-color: #4b5a6a; }
+        .content { margin-left: @(isLoginPage ? "0" : "80px"); padding: 20px; padding-top: @(isLoginPage ? "20px" : "60px"); }
+        #map { height: 500px; }
+
+        /* Estilos para a barra de navegação superior */
+        .topnav { position: fixed; top: 0; left: 80px; right: 0; background-color: #3C4A5B; color: #fff; padding: 10px; display: flex; justify-content: flex-end; align-items: center; z-index: 101; }
+        .topnav a { color: #fff; margin-left: 20px; text-decoration: none; }
+        .topnav a:hover { text-decoration: underline; }
+    </style>
+
+    <!-- Renderiza a seção Styles definida nas páginas -->
+    @RenderSection("Styles", required: false)
+</head>
+<body>
+    @if (!isLoginPage)
+    {
+        <div class="sidebar">
+            <a href="/SelecionarMapa">🏠</a>
+            <a href="/CadastroMapa">➕</a>
+            <a href="/SelecionarMapa">🗺️</a>
+            <a href="/CadastroDispositivo">📱</a>
+            <a href="/Gateway/CreateGateway">🔌</a>
+            <a href="/Mapa-Outdoor">📍</a>
+            <a href="/Mapa-Outdoor-historico">🍝</a>
+        </div>
+
+        <!-- Barra de navegação superior -->
+        <div class="topnav">
+            @{
+                var isAuthenticated = User.Identity.IsAuthenticated;
+            }
+            @if (isAuthenticated)
+            {
+                <span>Bem-vindo, @User.Identity.Name!</span>
+                <a asp-page="/Logout">Logout</a>
+            }
+            else
+            {
+                <a asp-page="/Login">Login</a>
+            }
+        </div>
+    }
+
+    <div class="content">
+        @RenderBody()
+    </div>
+
+    <!-- Renderiza a seção de scripts se ela for definida -->
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

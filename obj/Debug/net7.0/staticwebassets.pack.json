@@ -1,0 +1,157 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\css\\leaflet.css",
+      "PackagePath": "staticwebassets\\css\\leaflet.css"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\icons\\002forklift-red.jpg",
+      "PackagePath": "staticwebassets\\icons\\002forklift-red.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\icons\\3",
+      "PackagePath": "staticwebassets\\icons"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\icons\\5",
+      "PackagePath": "staticwebassets\\icons"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\icons\\7.png",
+      "PackagePath": "staticwebassets\\icons\\7.png"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\icons\\fork1ift-red.png",
+      "PackagePath": "staticwebassets\\icons\\fork1ift-red.png"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\icons\\forklift-green.png",
+      "PackagePath": "staticwebassets\\icons\\forklift-green.png"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\icons\\forklift-green1.png",
+      "PackagePath": "staticwebassets\\icons\\forklift-green1.png"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\icons\\forklift-orang1e.png",
+      "PackagePath": "staticwebassets\\icons\\forklift-orang1e.png"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\icons\\forklift-orange.png",
+      "PackagePath": "staticwebassets\\icons\\forklift-orange.png"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\icons\\forklift-red - Copia.jpg",
+      "PackagePath": "staticwebassets\\icons\\forklift-red - Copia.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\icons\\forklift-red.png",
+      "PackagePath": "staticwebassets\\icons\\forklift-red.png"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\icons\\map-pin.png",
+      "PackagePath": "staticwebassets\\icons\\map-pin.png"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\icons\\marker-icon-green.ico",
+      "PackagePath": "staticwebassets\\icons\\marker-icon-green.ico"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\icons\\marker-icon-green.png",
+      "PackagePath": "staticwebassets\\icons\\marker-icon-green.png"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\icons\\marker-icon-green.svg",
+      "PackagePath": "staticwebassets\\icons\\marker-icon-green.svg"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\icons\\marker-icon-orange.ico",
+      "PackagePath": "staticwebassets\\icons\\marker-icon-orange.ico"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\icons\\marker-icon-orange.svg",
+      "PackagePath": "staticwebassets\\icons\\marker-icon-orange.svg"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\icons\\marker-icon-red.png",
+      "PackagePath": "staticwebassets\\icons\\marker-icon-red.png"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\icons\\marker-icon-red.svg",
+      "PackagePath": "staticwebassets\\icons\\marker-icon-red.svg"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\icons\\marker-icon-red2.ico",
+      "PackagePath": "staticwebassets\\icons\\marker-icon-red2.ico"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\icons\\orange_location_icon_transparent.png",
+      "PackagePath": "staticwebassets\\icons\\orange_location_icon_transparent.png"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\js\\leaflet.js",
+      "PackagePath": "staticwebassets\\js\\leaflet.js"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\js\\xlsx.full.min.js",
+      "PackagePath": "staticwebassets\\js\\xlsx.full.min.js"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\uploads\\00fxvz3v.v2f.PNG",
+      "PackagePath": "staticwebassets\\uploads\\00fxvz3v.v2f.PNG"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\uploads\\4akpjzm1.1ov.PNG",
+      "PackagePath": "staticwebassets\\uploads\\4akpjzm1.1ov.PNG"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\uploads\\5zyunw1x.w4j.png",
+      "PackagePath": "staticwebassets\\uploads\\5zyunw1x.w4j.png"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\uploads\\jgmwhm5p.4cm.png",
+      "PackagePath": "staticwebassets\\uploads\\jgmwhm5p.4cm.png"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\uploads\\kyzwtx0k.3by.png",
+      "PackagePath": "staticwebassets\\uploads\\kyzwtx0k.3by.png"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\uploads\\nntbssju.zm3.PNG",
+      "PackagePath": "staticwebassets\\uploads\\nntbssju.zm3.PNG"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\uploads\\qabpzuqd.hbn.PNG",
+      "PackagePath": "staticwebassets\\uploads\\qabpzuqd.hbn.PNG"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\uploads\\qynzj25f.ytv.png",
+      "PackagePath": "staticwebassets\\uploads\\qynzj25f.ytv.png"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\uploads\\spwywzjc.w4v.png",
+      "PackagePath": "staticwebassets\\uploads\\spwywzjc.w4v.png"
+    },
+    {
+      "Id": "C:\\Users\\Sup\\Desktop\\VirtualBorder\\wwwroot\\uploads\\zjds3f3a.zt0.png",
+      "PackagePath": "staticwebassets\\uploads\\zjds3f3a.zt0.png"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.VirtualBorder.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.build.VirtualBorder.props",
+      "PackagePath": "build\\VirtualBorder.props"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.buildMultiTargeting.VirtualBorder.props",
+      "PackagePath": "buildMultiTargeting\\VirtualBorder.props"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.buildTransitive.VirtualBorder.props",
+      "PackagePath": "buildTransitive\\VirtualBorder.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

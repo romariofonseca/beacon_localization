@@ -1,0 +1,145 @@
+﻿@page
+@model VirtualBorder.Pages.CadastroDispositivoModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Cadastro de Dispositivos";
+}
+
+<h2>Cadastrar Novo Dispositivo</h2>
+
+<!-- Formulário para cadastrar e editar dispositivos -->
+<form id="deviceForm">
+    <input type="hidden" id="isEditing" value="false" />
+    <input type="hidden" id="editMac" value="" />
+
+    <div class="form-group">
+        <label for="nome">Nome:</label>
+        <input type="text" id="nome" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label for="mac">MAC:</label>
+        <input type="text" id="mac" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label for="latitude">Latitude:</label>
+        <input type="number" id="latitude" class="form-control" step="any" required />
+    </div>
+    <div class="form-group">
+        <label for="longitude">Longitude:</label>
+        <input type="number" id="longitude" class="form-control" step="any" required />
+    </div>
+    <div class="form-group">
+        <label for="sn">SN:</label>
+        <input type="text" id="sn" class="form-control" required />
+    </div>
+    <button type="button" class="btn btn-primary" onclick="submitDeviceForm()">Cadastrar</button>
+</form>
+
+<h3>Dispositivos Cadastrados</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>MAC</th>
+            <th>Latitude</th>
+            <th>Longitude</th>
+            <th>SN</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var device in Model.RegisteredDevice)
+        {
+            <tr>
+                <td>@device.Nome</td>
+                <td>@device.Mac</td>
+                <td>@device.Latitude</td>
+                <td>@device.Longitude</td>
+                <td>@device.Sn</td>
+                <td>
+                    <button class="btn btn-warning" onclick="editDevice('@device.Mac', '@device.Nome', @device.Latitude, @device.Longitude, '@device.Sn')">Editar</button>
+                    <button class="btn btn-danger" onclick="deleteDevice('@device.Mac')">Deletar</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Script JavaScript para manipular os dados via API -->
+<script>
+    // Função para cadastrar ou editar um dispositivo
+    function submitDeviceForm() {
+        const isEditing = document.getElementById('isEditing').value === 'true';
+        const mac = document.getElementById('mac').value;
+        const nome = document.getElementById('nome').value;
+        const latitude = parseFloat(document.getElementById('latitude').value);
+        const longitude = parseFloat(document.getElementById('longitude').value);
+        const sn = document.getElementById('sn').value;
+        const endpoint = 'http://10.241.210.95:5043/api/devices'; // Ajuste o endpoint conforme necessário
+
+        const deviceData = {
+            mac: mac,
+            nome: nome,
+            latitude: latitude,
+            longitude: longitude,
+            sn: sn
+        };
+
+        // Define a URL e o método HTTP para cadastro ou edição
+        const url = isEditing ? `${endpoint}/${mac}` : endpoint;
+        const method = isEditing ? 'PUT' : 'POST';
+
+        fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(deviceData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro ao processar o dispositivo: ' + response.statusText);
+            }
+            alert(isEditing ? 'Dispositivo editado com sucesso!' : 'Dispositivo cadastrado com sucesso!');
+            location.reload(); // Recarrega a página para atualizar a lista
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Falha ao processar o dispositivo.');
+        });
+    }
+
+    // Função para preencher o formulário com dados do dispositivo para edição
+    function editDevice(mac, nome, latitude, longitude, sn) {
+        document.getElementById('mac').value = mac;
+        document.getElementById('nome').value = nome;
+        document.getElementById('latitude').value = latitude;
+        document.getElementById('longitude').value = longitude;
+        document.getElementById('sn').value = sn;
+        document.getElementById('isEditing').value = 'true';
+        document.getElementById('editMac').value = mac;
+        document.querySelector('button[type="button"]').innerText = 'Salvar Alterações';
+    }
+
+    // Função para deletar um dispositivo
+    function deleteDevice(mac) {
+        if (!confirm('Tem certeza que deseja deletar este dispositivo?')) {
+            return;
+        }
+
+        fetch(`http://10.241.210.95:5043/api/devices/${mac}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro ao deletar o dispositivo: ' + response.statusText);
+            }
+            alert('Dispositivo deletado com sucesso!');
+            location.reload(); // Recarrega a página para atualizar a lista
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Falha ao deletar o dispositivo.');
+        });
+    }
+</script>

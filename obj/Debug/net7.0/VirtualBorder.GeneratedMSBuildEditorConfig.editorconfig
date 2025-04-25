@@ -1,0 +1,77 @@
+is_global = true
+build_property.TargetFramework = net7.0
+build_property.TargetFramework = net7.0
+build_property.TargetPlatformMinVersion = 
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = VirtualBorder
+build_property.RootNamespace = VirtualBorder
+build_property.ProjectDir = C:\Users\Sup\Desktop\VirtualBorder\
+build_property.RazorLangVersion = 7.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = true
+build_property.MSBuildProjectDirectory = C:\Users\Sup\Desktop\VirtualBorder
+build_property._RazorSourceGeneratorDebug = 
+
+[C:/Users/Sup/Desktop/VirtualBorder/Pages/CadastroDispositivo.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2FkYXN0cm9EaXNwb3NpdGl2by5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Sup/Desktop/VirtualBorder/Pages/CadastroGateway.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2FkYXN0cm9HYXRld2F5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Sup/Desktop/VirtualBorder/Pages/CadastroMapa.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2FkYXN0cm9NYXBhLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Sup/Desktop/VirtualBorder/Pages/Gateway/CreateGateway.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcR2F0ZXdheVxDcmVhdGVHYXRld2F5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Sup/Desktop/VirtualBorder/Pages/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9naW4uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Sup/Desktop/VirtualBorder/Pages/Logout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9nb3V0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Sup/Desktop/VirtualBorder/Pages/Mapa.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTWFwYS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Sup/Desktop/VirtualBorder/Pages/Mapa_outdoor.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTWFwYV9vdXRkb29yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Sup/Desktop/VirtualBorder/Pages/Mapa_outdoor_historico.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTWFwYV9vdXRkb29yX2hpc3Rvcmljby5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Sup/Desktop/VirtualBorder/Pages/SelecionarMapa.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2VsZWNpb25hck1hcGEuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Sup/Desktop/VirtualBorder/Pages/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Sup/Desktop/VirtualBorder/Pages/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX0xheW91dC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Sup/Desktop/VirtualBorder/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 

@@ -1,0 +1,136 @@
+﻿@page
+@model VirtualBorder.Pages.Gateway.GatewaysModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Cadastrar Novo Gateway";
+}
+
+<h2>Cadastro de Gateways</h2>
+
+<!-- Formulário para cadastrar e editar gateways -->
+<form id="gatewayForm">
+    <input type="hidden" id="isEditing" value="false" />
+    <input type="hidden" id="editMac" value="" />
+    
+    <div class="form-group">
+        <label>MAC Address:</label>
+        <input type="text" id="mac" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label>Nome:</label>
+        <input type="text" id="nome" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label>Latitude:</label>
+        <input type="number" id="latitude" class="form-control" step="any" />
+    </div>
+    <div class="form-group">
+        <label>Longitude:</label>
+        <input type="number" id="longitude" class="form-control" step="any" />
+    </div>
+    <button type="button" class="btn btn-primary" onclick="submitForm()">Cadastrar</button>
+</form>
+
+<h3>Gateways Cadastrados</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>MAC Address</th>
+            <th>Nome</th>
+            <th>Latitude</th>
+            <th>Longitude</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var gateway in Model.Gateways)
+        {
+            <tr>
+                <td>@gateway.Mac</td>
+                <td>@gateway.Nome</td>
+                <td>@gateway.Latitude</td>
+                <td>@gateway.Longitude</td>
+                <td>
+                    <button class="btn btn-warning" onclick="editGateway('@gateway.Mac', '@gateway.Nome', @gateway.Latitude, @gateway.Longitude)">Editar</button>
+                    <button class="btn btn-danger" onclick="deleteGateway('@gateway.Mac')">Deletar</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Script JavaScript para manipular os dados via API -->
+<script>
+    // Função para cadastrar ou editar um gateway
+    function submitForm() {
+        const isEditing = document.getElementById('isEditing').value === 'true';
+        const mac = document.getElementById('mac').value;
+        const nome = document.getElementById('nome').value;
+        const latitude = parseFloat(document.getElementById('latitude').value);
+        const longitude = parseFloat(document.getElementById('longitude').value);
+        const endpoint = 'http://10.241.210.95:5043/api/gateways';
+
+        const gatewayData = {
+            mac: mac,
+            nome: nome,
+            latitude: latitude,
+            longitude: longitude
+        };
+
+        // Define a URL e o método HTTP para cadastro ou edição
+        const url = isEditing ? `${endpoint}/${mac}` : endpoint;
+        const method = isEditing ? 'PUT' : 'POST';
+
+        fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(gatewayData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro ao processar o gateway: ' + response.statusText);
+            }
+            alert(isEditing ? 'Gateway editado com sucesso!' : 'Gateway cadastrado com sucesso!');
+            location.reload(); // Recarrega a página para atualizar a lista
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Falha ao processar o gateway.');
+        });
+    }
+
+    // Função para preencher o formulário com dados do gateway para edição
+    function editGateway(mac, nome, latitude, longitude) {
+        document.getElementById('mac').value = mac;
+        document.getElementById('nome').value = nome;
+        document.getElementById('latitude').value = latitude;
+        document.getElementById('longitude').value = longitude;
+        document.getElementById('isEditing').value = 'true';
+        document.getElementById('editMac').value = mac;
+        document.querySelector('button[type="button"]').innerText = 'Salvar Alterações';
+    }
+
+    // Função para deletar um gateway
+    function deleteGateway(mac) {
+        if (!confirm('Tem certeza que deseja deletar este gateway?')) {
+            return;
+        }
+
+        fetch(`http://10.241.210.95:5043/api/gateways/${mac}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro ao deletar o gateway: ' + response.statusText);
+            }
+            alert('Gateway deletado com sucesso!');
+            location.reload(); // Recarrega a página para atualizar a lista
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Falha ao deletar o gateway.');
+        });
+    }
+</script>

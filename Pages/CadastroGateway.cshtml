@@ -1,0 +1,53 @@
+﻿@page
+@model VirtualBorder.Pages.CadastroGatewayModel
+@{
+    ViewData["Title"] = "Cadastro de Gateway";
+}
+
+<div class="container mt-4">
+    <h2>Cadastrar Novo Gateway</h2>
+    <form method="post">
+        <div class="form-group">
+            <label for="nome">Nome:</label>
+            <input type="text" name="Nome" id="nome" class="form-control" required />
+        </div>
+        <div class="form-group">
+            <label for="mac">MAC:</label>
+            <input type="text" name="Mac" id="mac" class="form-control" required />
+        </div>
+        <div class="form-group">
+            <label for="latitude">Latitude:</label>
+            <input type="text" name="Latitude" id="latitude" class="form-control" required />
+        </div>
+        <div class="form-group">
+            <label for="longitude">Longitude:</label>
+            <input type="text" name="Longitude" id="longitude" class="form-control" required />
+        </div>
+        <button type="submit" class="btn btn-primary">Cadastrar</button>
+    </form>
+
+    <h3 class="mt-5">Gateways Cadastrados</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>MAC</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var gateway in Model.Gateways)
+            {
+                <tr>
+                    <td>@gateway.Nome</td>
+                    <td>@gateway.Mac</td>
+                    <td>@gateway.Latitude</td>
+                    <td>@gateway.Longitude</td>
+                    <td><a asp-page-handler="Editar" asp-route-mac="@gateway.Mac">Editar</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

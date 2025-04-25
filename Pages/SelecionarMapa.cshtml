@@ -1,0 +1,55 @@
+﻿@page
+@model VirtualBorder.Pages.SelecionarMapaModel
+@{
+    Layout = "_Layout";  // Definindo o layout
+    ViewData["Title"] = "Selecionar Mapa";
+}
+
+<div class="container mt-4">
+    <h2>Selecionar Mapa</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Imagem</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Mapas.Any())
+            {
+                @foreach (var mapa in Model.Mapas)
+                {
+                    <tr>
+                        <td>@mapa.Id</td>
+                        <td>@mapa.Nome</td>
+                        <td>
+                            <img src="/uploads/@mapa.Imagem" alt="@mapa.Nome" style="width: 50px; height: auto;" />
+                        </td>
+                        <td>
+                            <!-- Link para abrir a página do mapa correspondente -->
+                            <a href="/Mapa/@mapa.Id" class="btn btn-primary">Selecionar</a>
+                            
+                            <!-- Botão para editar o mapa -->
+                            <form method="get" asp-page-handler="Editar" asp-route-id="@mapa.Id" style="display:inline;">
+                                <button type="submit" class="btn btn-warning">Editar</button>
+                            </form>
+                            
+                            <!-- Botão para excluir o mapa -->
+                            <form method="post" asp-page-handler="Excluir" asp-route-id="@mapa.Id" style="display:inline;">
+                                <button type="submit" class="btn btn-danger">Excluir</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="4">Nenhum mapa cadastrado.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

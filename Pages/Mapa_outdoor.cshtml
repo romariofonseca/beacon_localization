@@ -1,0 +1,205 @@
+﻿@page "/Mapa-outdoor"
+@model VirtualBorder.Pages.MapaOutdoorModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Mapa-outdoor";
+}
+
+<div style="display: flex;">
+    <!-- Lista de seleção lateral -->
+    <div style="width: 250px; padding: 10px; background-color: #f8f9fa; border-right: 1px solid #dee2e6;">
+        <h4>Dispositivos</h4>
+        <input type="text" id="filterInput" placeholder="Filtrar dispositivos..." oninput="filterDevices()">
+        <div id="deviceList"></div>
+        <button type="button" onclick="updateMap()">Atualizar Mapa</button>
+    </div>
+
+    <!-- Mapa OpenStreetMap com Leaflet.js -->
+    <div id="map" style="height: 800px; width: 100%;"></div>
+
+</div>
+
+<!-- Estilo para os dispositivos -->
+<style>
+    .device-item {
+        margin-bottom: 10px;
+    }
+
+    /* Efeito de piscar */
+    .blink {
+        animation: blink-animation 1s steps(2, start) infinite;
+    }
+
+    @@keyframes blink-animation {
+        to {
+            visibility: hidden;
+        }
+    }
+</style>
+
+<!-- Inclua o CSS do Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<!-- Inclua o JS do Leaflet -->
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+<script>
+    var map;
+    var markers = [];
+    var devices = [];
+
+    // Inicializa o mapa OpenStreetMap com Leaflet.js
+    function initMap(center, zoomLevel) {
+        map = L.map('map').setView(center, zoomLevel); // Inicializa o mapa com o centro e zoom fornecidos
+
+        // Adiciona uma camada de mapas do OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+    }
+
+    // Função para buscar os dispositivos das APIs
+    function fetchDevices() {
+        Promise.all([
+            fetch("http://10.241.210.95:5043/api/gps/get_all").then(response => response.json()),
+            fetch("http://10.241.210.95:5043/api/devices").then(response => response.json())
+        ])
+        .then(([gpsData, devicesData]) => {
+            const validDevices = getValidDevices(gpsData, devicesData);
+            devices = getLatestDevicesByMAC(validDevices); // Obter a última leitura por MAC
+
+            // Encontra a última leitura (usando a última posição do array)
+            const lastDevice = devices[devices.length - 1];
+
+            // Inicializa o mapa com o ponto da última leitura como centro e zoom máximo (18)
+            initMap([lastDevice.latitude, lastDevice.longitude], 18);
+
+            populateDeviceList(devices);
+            updateMap();
+        })
+        .catch(error => console.error('Erro ao buscar os dispositivos:', error));
+    }
+
+    // Função para obter dispositivos válidos presentes em ambas as APIs
+    function getValidDevices(gpsData, devicesData) {
+        const devicesMap = new Map(devicesData.map(device => [device.mac, device.nome]));
+        return gpsData.filter(device => devicesMap.has(device.mac))
+                      .map(device => ({ ...device, nome: devicesMap.get(device.mac) }));
+    }
+
+    // Função para obter a última leitura de cada MAC
+    function getLatestDevicesByMAC(data) {
+        const deviceMap = new Map();
+
+        // Percorre os dispositivos e mantém apenas a leitura mais recente de cada MAC
+        data.forEach(device => {
+            const existingDevice = deviceMap.get(device.mac);
+            const deviceDate = new Date(device.dataHora);
+
+            // Se o MAC já existe no mapa, verificamos se esta leitura é mais recente
+            if (!existingDevice || deviceDate > new Date(existingDevice.dataHora)) {
+                deviceMap.set(device.mac, device);
+            }
+        });
+
+        return Array.from(deviceMap.values());
+    }
+
+    // Preenche a lista de dispositivos na barra lateral
+    function populateDeviceList(devices) {
+        const deviceList = document.getElementById('deviceList');
+        deviceList.innerHTML = ''; // Limpar a lista existente
+
+        devices.forEach(function (device, index) {
+            const deviceItem = `
+                <div class="device-item">
+                    <input type="checkbox" id="device-${index}" value="${device.mac}">
+                    <label for="device-${index}">Nome: ${device.nome}</label>
+                </div>
+            `;
+            deviceList.innerHTML += deviceItem;
+        });
+    }
+
+    // Função para definir o ícone de empilhadeira customizado com base no tempo de leitura
+    function getForkliftIcon(color) {
+        return L.icon({
+            iconUrl: `/icons/forklift-${color}.png`, // Caminho do ícone de empilhadeira colorido
+            iconSize: [90, 90],  // Tamanho do ícone
+            iconAnchor: [15, 30],  // Ponto do ícone que será centralizado no mapa
+            popupAnchor: [0, -30]  // Onde a pop-up será exibida em relação ao ícone
+        });
+    }
+
+    // Função para definir a cor do ícone com base na diferença de tempo
+    function getMarkerColor(device) {
+        const deviceDate = new Date(device.dataHora);
+        const now = new Date();
+        const timeDiff = (now - deviceDate) / (1000 * 60); // Diferença em minutos
+
+        if (timeDiff < 5) {
+            return 'green'; // Menos de 5 minutos, verde
+        } else if (timeDiff >= 5 && timeDiff <= 10) {
+            return 'orange'; // Entre 5 e 10 minutos, laranja
+        } else {
+            return 'red'; // Mais de 10 minutos, vermelho
+        }
+    }
+
+    // Atualiza os marcadores no mapa com base nos dispositivos selecionados
+    function updateMap() {
+        clearMarkers();
+
+        const selectedDevices = Array.from(document.querySelectorAll('#deviceList input[type="checkbox"]:checked'))
+            .map(checkbox => checkbox.value);
+
+        const filteredDevices = devices.filter(device => selectedDevices.includes(device.mac));
+
+        filteredDevices.forEach(function (device) {
+            const markerColor = getMarkerColor(device); // Define a cor do ícone
+            const forkliftIcon = getForkliftIcon(markerColor); // Ícone de empilhadeira com a cor
+            var marker = L.marker([device.latitude, device.longitude], { icon: forkliftIcon }).addTo(map);
+            marker.bindPopup(`<strong>MAC:</strong> ${device.mac}<br><strong>Nome:</strong> ${device.nome}<br><strong>Data:</strong> ${device.dataHora}<br><strong>Altitude:</strong> ${device.altitude}m`);
+            markers.push(marker);
+
+            // Aplica o efeito de piscar para todos os dispositivos
+            const markerElement = marker.getElement(); // Acessa o elemento DOM do ícone
+            if (markerElement) {
+                markerElement.classList.add('blink'); // Adiciona a classe blink ao ícone
+            }
+        });
+    }
+
+    // Limpa todos os marcadores do mapa
+    function clearMarkers() {
+        markers.forEach(marker => map.removeLayer(marker));
+        markers = [];
+    }
+
+    // Função para filtrar dispositivos na lista
+    function filterDevices() {
+        const filterValue = document.getElementById('filterInput').value.toLowerCase();
+        const deviceItems = document.querySelectorAll('.device-item');
+
+        deviceItems.forEach(item => {
+            const deviceName = item.querySelector('label').textContent.toLowerCase();
+            if (deviceName.includes(filterValue)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+
+    // Atualiza o mapa a cada 10 segundos
+    function autoUpdateMap() {
+        setInterval(() => {
+            fetchDevices(); // Atualiza o mapa a cada 10 segundos
+        }, 10000);
+    }
+
+    // Inicializa o mapa ao carregar a página
+    document.addEventListener('DOMContentLoaded', function () {
+        fetchDevices(); // Carrega os dados iniciais
+        autoUpdateMap(); // Inicia a atualização automática
+    });
+</script>

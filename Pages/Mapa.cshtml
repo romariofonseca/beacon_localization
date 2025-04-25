@@ -1,0 +1,289 @@
+﻿@page "{id:int}"
+@model VirtualBorder.Pages.MapaModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Mapa";
+}
+
+<div style="display: flex;">
+    <!-- Lista de seleção lateral -->
+    <div style="width: 250px; padding: 10px; background-color: #f8f9fa; border-right: 1px solid #dee2e6;">
+        <h4>Dispositivos</h4>
+        <input type="text" id="filterInput" placeholder="Filtrar dispositivos..." oninput="filterDevices()">
+        <form id="deviceForm">
+            @* Esta lista será preenchida dinamicamente com os dispositivos *@
+            <div id="deviceList"></div>
+            <button type="button" onclick="updateMarkers()">Atualizar Mapa</button>
+        </form>
+    </div>
+
+    <!-- Mapa -->
+    <div id="map" style="height: 800px; width: 100%;"></div>
+</div>
+
+<style>
+    .device-item.green-bg {
+        background-color: #d4edda; /* Verde claro */
+    }
+    .device-item.orange-bg {
+        background-color: #ffeeba; /* Laranja claro */
+    }
+    .device-item.red-bg {
+        background-color: #f8d7da; /* Vermelho claro */
+    }
+
+    /* Blink */
+    @@keyframes blink {
+        0% { opacity: 1; }
+        50% { opacity: 0; }
+        100% { opacity: 1; }
+    }
+
+    .blink-icon {
+        animation: blink 1s infinite;
+    }
+</style>
+
+<!-- Inclua o CSS e JS do Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+    var map;
+    var markersLayer;
+    var devices = []; // Variável para armazenar todos os dispositivos
+
+    // Função para inicializar o mapa com base nas dimensões da imagem
+    function initializeMap(imageUrl, imageWidth, imageHeight) {
+        console.log('Inicializando o mapa com imagem:', imageUrl);
+        var centerX = 0;
+        var centerY = 0;
+        var scaleLat = imageHeight / 2;
+        var scaleLon = imageWidth / 2;
+
+        map = L.map('map', {
+            crs: L.CRS.Simple,
+            minZoom: -5
+        }).setView([centerX, centerY], 0);
+
+        var imageBounds = [[-scaleLat, -scaleLon], [scaleLat, scaleLon]];
+        L.imageOverlay(imageUrl, imageBounds).addTo(map);
+        map.fitBounds(imageBounds);
+
+        markersLayer = L.layerGroup().addTo(map);
+
+        setTimeout(() => {
+            map.invalidateSize();
+            console.log('Mapa redimensionado.');
+        }, 500);
+    }
+
+    // Função para buscar a configuração do mapa
+    function fetchMapConfiguration() {
+        var id = @Model.Id;
+        console.log('Buscando configuração do mapa para o ID:', id);
+
+        fetch(`/api/maps/${id}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao buscar o mapa');
+                }
+                return response.json();
+            })
+            .then(map => {
+                console.log('Configuração do mapa recebida:', map);
+                var img = new Image();
+                img.onload = function () {
+                    initializeMap(`/uploads/${map.imagem}`, img.width, img.height);
+                    fetchMarkers(); // Carregar dispositivos ao carregar mapa
+                };
+                img.src = `/uploads/${map.imagem}`;
+            })
+            .catch(error => {
+                console.error('Erro ao carregar o mapa:', error);
+                alert('Erro ao carregar o mapa.');
+            });
+    }
+
+    // Função para buscar e exibir os dispositivos na lista de seleção
+    function fetchMarkers() {
+        console.log('Buscando dispositivos...');
+
+        fetch("http://10.241.210.95:5043/api/markers")
+            .then(response => response.json())
+            .then(data => {
+                devices = getLatestMarkersByMAC(data); // Filtrando os dispositivos
+                populateDeviceList(devices);
+                updateMarkers(); // Atualiza os marcadores no mapa
+            })
+            .catch(error => {
+                console.error('Erro ao buscar os dispositivos:', error);
+                alert('Erro ao buscar os dispositivos.');
+            });
+    }
+
+    // Função para obter o último registro de cada MAC dentro das últimas 24 horas
+    function getLatestMarkersByMAC(data) {
+        const markersMap = new Map();
+        const now = new Date();
+        const twentyFourHoursAgo = new Date(now.getTime() - (24 * 60 * 60 * 1000)); // Timestamp de 24 horas atrás
+
+        data.forEach(device => {
+            const deviceDate = new Date(device.ultima_Leitura);
+
+            // Verifica se a leitura está dentro das últimas 24 horas
+            if (deviceDate >= twentyFourHoursAgo) {
+                const key = device.mac;
+                const existingDevice = markersMap.get(key);
+
+                // Mantém o dispositivo com a leitura mais recente
+                if (!existingDevice || deviceDate > new Date(existingDevice.ultima_Leitura)) {
+                    markersMap.set(key, device);
+                }
+            }
+        });
+
+        console.log('Marcadores filtrados (último de cada MAC nas últimas 24 horas):', Array.from(markersMap.values()));
+        return Array.from(markersMap.values());
+    }
+
+    // Função para salvar os dispositivos selecionados
+    function saveSelectedDevices() {
+        const selected = [];
+        document.querySelectorAll('#deviceForm input[name="devices"]:checked').forEach((checkbox) => {
+            selected.push(checkbox.value);
+        });
+        return selected;
+    }
+
+    // Função para restaurar os dispositivos selecionados
+    function restoreSelectedDevices(selectedDevices) {
+        document.querySelectorAll('#deviceForm input[name="devices"]').forEach((checkbox) => {
+            if (selectedDevices.includes(checkbox.value)) {
+                checkbox.checked = true;
+            } else {
+                checkbox.checked = false;
+            }
+        });
+    }
+
+    // Função para preencher a lista de dispositivos no formulário lateral
+    function populateDeviceList(devices) {
+        const deviceList = document.getElementById('deviceList');
+        const selectedDevices = saveSelectedDevices(); // Salva os dispositivos selecionados antes de limpar a lista
+        deviceList.innerHTML = ''; // Limpar a lista existente
+
+        const now = new Date(); // Obter a data e hora atuais
+
+        devices.forEach(function (device, index) {
+            const ultimaLeitura = new Date(device.ultima_Leitura);
+            const minutesDifference = (now - ultimaLeitura) / (1000 * 60); // Diferença em minutos
+
+            // Definir a classe de fundo com base na diferença de tempo
+            let backgroundClass = '';
+            if (minutesDifference < 5) {
+                backgroundClass = 'green-bg';
+            } else if (minutesDifference >= 5 && minutesDifference <= 10) {
+                backgroundClass = 'orange-bg';
+            } else {
+                backgroundClass = 'red-bg';
+            }
+
+            const deviceCheckbox = `
+                <div class="device-item ${backgroundClass}" data-nome="${device.nome.toLowerCase()}">
+                    <input type="checkbox" id="device-${index}" name="devices" value="${device.mac}">
+                    <label for="device-${index}">${device.nome}</label>
+                </div>
+            `;
+            deviceList.innerHTML += deviceCheckbox;
+        });
+
+        restoreSelectedDevices(selectedDevices); // Restaura os dispositivos selecionados após popular a lista
+    }
+
+    // Função para obter os dispositivos selecionados
+    function getSelectedDevices() {
+        const selected = [];
+        document.querySelectorAll('#deviceForm input[name="devices"]:checked').forEach((checkbox) => {
+            selected.push(checkbox.value);
+        });
+        return selected;
+    }
+
+    // Função para atualizar os marcadores com base nos dispositivos selecionados
+    function updateMarkers() {
+        console.log('Atualizando marcadores...');
+        const selectedDevices = getSelectedDevices();
+        const filteredData = devices.filter(device => selectedDevices.includes(device.mac));
+        
+        markersLayer.clearLayers(); // Limpar os marcadores antigos
+        addAllMarkers(filteredData); // Adicionar os novos marcadores filtrados
+    }
+
+    // Função para adicionar todos os marcadores ao mapa
+    function addAllMarkers(data) {
+        const markers = [];
+
+        data.forEach(function (device, index) {
+            const ultimaLeitura = new Date(device.ultima_Leitura);
+            const agora = new Date();
+            const diferencaMinutos = (agora - ultimaLeitura) / (1000 * 60);
+
+            let iconUrl;
+            if (diferencaMinutos > 10) {
+                iconUrl = '/icons/marker-icon-red.svg'; // Vermelho
+            } else if (diferencaMinutos >= 5) {
+                iconUrl = '/icons/marker-icon-orange.svg'; // Laranja
+            } else {
+                iconUrl = '/icons/marker-icon-green.svg'; // Verde
+            }
+
+            if (isNaN(device.latitude) || isNaN(device.longitude)) {
+                console.error('Coordenadas inválidas para o dispositivo:', device);
+                return;
+            }
+
+            var adjustedLat = device.latitude;
+            var adjustedLon = device.longitude + (index * 2.4); // Ajuste para evitar sobreposição
+
+            var marker = L.marker([adjustedLat, adjustedLon], {
+                icon: L.icon({
+                    iconUrl: iconUrl,
+                    iconSize: [50, 70],
+                    className: 'blink-icon' // Adicionando a classe blink-icon
+                })
+            }).bindPopup(`Nome: ${device.nome}<br>MAC: ${device.mac}<br>Última Leitura: ${device.ultima_Leitura}`);
+
+            markers.push(marker);
+        });
+
+        markersLayer.addLayer(L.layerGroup(markers));
+    }
+
+    // Função para filtrar os dispositivos exibidos na lista de seleção
+    function filterDevices() {
+        const filterValue = document.getElementById('filterInput').value.toLowerCase();
+        const deviceItems = document.querySelectorAll('.device-item');
+
+        deviceItems.forEach(item => {
+            const deviceName = item.getAttribute('data-nome');
+            const checkbox = item.querySelector('input[type="checkbox"]');
+
+            if (deviceName.includes(filterValue)) {
+                item.style.display = 'block';  // Exibe o item
+                checkbox.checked = true;       // Marca o checkbox
+            } else {
+                item.style.display = 'none';   // Esconde o item
+                checkbox.checked = false;      // Desmarca o checkbox
+            }
+        });
+    }
+
+    // Chama a função para buscar a configuração do mapa quando o documento é carregado
+    document.addEventListener('DOMContentLoaded', function () {
+        fetchMapConfiguration();
+    });
+
+    // Atualiza os marcadores a cada 10 segundos
+    setInterval(fetchMarkers, 10000); // Alterado para chamar fetchMarkers para buscar novos dados periodicamente
+</script>

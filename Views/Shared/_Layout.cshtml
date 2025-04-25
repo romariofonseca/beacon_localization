@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - VirtualBorder</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha384-Tl5fmebA7AftLZ8u9dEXbZMTUFlNhZEx8qEJOp8ogG3jOZV3v98T1FAdku79SIpL" crossorigin=""/>
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    <div class="container">
+        <!-- Painel Lateral -->
+        <div class="sidebar">
+            <h2>Navegação</h2>
+            <ul>
+                <li><a href="/Mapa">Mapa</a></li>
+                <li><a href="/CadastroDispositivo">Cadastro Dispositivo</a></li>
+                <li><a href="/CadastroGateway">Cadastro Gateway</a></li>
+                <li><a href="/CadastroMapa">Cadastro Mapa</a></li>
+            </ul>
+        </div>
+
+        <!-- Conteúdo da página -->
+        <div class="content">
+            @RenderBody() <!-- O conteúdo da página específica será renderizado aqui -->
+        </div>
+    </div>
+
+    <!-- Scripts do Leaflet -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha384-WNTC+Eo+XcFNWUJ11pChfXErjcZaqrxIJN8io64CwXYnI+CTGw2gPfchxvYyGb3H" crossorigin=""></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
+
+<!-- Estilo do Layout -->
+<style>
+    .container {
+        display: flex;
+        height: 100vh;
+    }
+
+    .sidebar {
+        width: 200px;
+        background-color: #2c3e50;
+        padding: 15px;
+        color: white;
+    }
+
+    .sidebar h2 {
+        color: #ecf0f1;
+        font-size: 20px;
+    }
+
+    .sidebar ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .sidebar ul li {
+        margin: 15px 0;
+    }
+
+    .sidebar ul li a {
+        color: #ecf0f1;
+        text-decoration: none;
+        font-size: 16px;
+    }
+
+    .sidebar ul li a:hover {
+        color: #f39c12;
+    }
+
+    .content {
+        flex-grow: 1;
+        position: relative;
+    }
+</style>

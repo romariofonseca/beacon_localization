@@ -1,0 +1,120 @@
+﻿@page
+@model VirtualBorder.Pages.CadastroMapaModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Cadastro de Mapa";
+}
+
+<div class="container mt-4">
+    <h2>Cadastrar Novo Mapa</h2>
+    <form id="mapForm" enctype="multipart/form-data">
+        <input type="hidden" id="isEditing" value="false" />
+        <input type="hidden" id="editId" value="" />
+
+        <div class="form-group">
+            <label for="nome">Nome do Mapa:</label>
+            <input type="text" id="nome" class="form-control" required />
+        </div>
+        <div class="form-group">
+            <label for="imagem">Selecionar Imagem:</label>
+            <input type="file" id="imagem" class="form-control" required />
+        </div>
+        <button type="button" class="btn btn-primary" onclick="submitMapForm()">Cadastrar</button>
+    </form>
+
+    <h3 class="mt-5">Mapas Cadastrados</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Imagem</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var mapa in Model.Mapas)
+            {
+                <tr>
+                    <td>@mapa.Id</td>
+                    <td>@mapa.Nome</td>
+                    <td><img src="/uploads/@mapa.Imagem" alt="@mapa.Nome" style="width: 50px; height: auto;" /></td>
+                    <td>
+                        <button class="btn btn-warning" onclick="editMap('@mapa.Id', '@mapa.Nome')">Editar</button>
+                        <button class="btn btn-danger" onclick="deleteMap('@mapa.Id')">Excluir</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // Função para cadastrar ou editar um mapa
+    function submitMapForm() {
+        const isEditing = document.getElementById('isEditing').value === 'true';
+        const id = document.getElementById('editId').value;
+        const nome = document.getElementById('nome').value;
+        const imagem = document.getElementById('imagem').files[0];
+        const endpoint = 'http://10.241.210.95:5043/api/maps'; // Ajuste o endpoint conforme necessário
+
+        const formData = new FormData();
+        formData.append('nome', nome);
+        formData.append('imagem', imagem);
+
+        // Adiciona coordenadas e escalas fixas ao formData
+        formData.append('centerX', 0); // Valor fixo para CenterX
+        formData.append('centerY', 0); // Valor fixo para CenterY
+        formData.append('scaleLat', 100); // Valor fixo para ScaleLat
+        formData.append('scaleLon', 100); // Valor fixo para ScaleLon
+
+        const url = isEditing ? `${endpoint}/${id}` : endpoint;
+        const method = isEditing ? 'PUT' : 'POST';
+
+        fetch(url, {
+            method: method,
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro ao processar o mapa: ' + response.statusText);
+            }
+            alert(isEditing ? 'Mapa editado com sucesso!' : 'Mapa cadastrado com sucesso!');
+            location.reload(); // Recarrega a página para atualizar a lista
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Falha ao processar o mapa.');
+        });
+    }
+
+    // Função para preencher o formulário com dados do mapa para edição
+    function editMap(id, nome) {
+        document.getElementById('nome').value = nome;
+        document.getElementById('isEditing').value = 'true';
+        document.getElementById('editId').value = id;
+        document.querySelector('button[type="button"]').innerText = 'Salvar Alterações';
+    }
+
+    // Função para deletar um mapa
+    function deleteMap(id) {
+        if (!confirm('Tem certeza que deseja deletar este mapa?')) {
+            return;
+        }
+
+        fetch(`http://10.241.210.95:5043/api/maps/${id}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro ao deletar o mapa: ' + response.statusText);
+            }
+            alert('Mapa deletado com sucesso!');
+            location.reload(); // Recarrega a página para atualizar a lista
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Falha ao deletar o mapa.');
+        });
+    }
+</script>
