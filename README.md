@@ -1,71 +1,55 @@
-# beacon_localization
-Beacon localization+
+# VirtualBorder <!-- omit in toc -->
 
-VirtualBorder <!-- omit in toc -->
-Um sistema .NET para monitorar “fronteiras virtuais” em fábricas e armazéns— rastreando dispositivos via MQTT, exibindo-os num mapa em tempo real e expondo uma Web API para integração com MES/WMS.
+Um **sistema .NET** para monitorar “fronteiras virtuais” em fábricas e armazéns— rastreando dispositivos via MQTT, exibindo-os num mapa em tempo real e expondo uma Web API para integração com MES/WMS.
 
-Estado: Proof-of-Concept - funcional, porém ainda em evolução
-Framework alvo: .NET 7 → 8 (compatível com LTS)
-Banco de dados: SQLite embutido
-Mapa: Leaflet.js + OpenStreetMap
+> **Estado**: Proof‑of‑Concept – _funcional, porém ainda em evolução_  
+> **Framework alvo**: .NET 7 → 8 (compatível com LTS)  
+> **Banco de dados**: SQLite embutido  
+> **Mapa**: Leaflet.js + OpenStreetMap  
 
-Índice <!-- omit in toc -->
-Visão geral
+---
 
-Arquitetura
+## Índice <!-- omit in toc -->
 
-Funcionalidades principais
+1. [Visão geral](#visão-geral)  
+2. [Arquitetura](#arquitetura)  
+3. [Funcionalidades principais](#funcionalidades-principais)  
+4. [Pré‑requisitos](#pré-requisitos)  
+5. [Instalação e execução](#instalação-e-execução)  
+6. [Configurações](#configurações)  
+7. [Estrutura de banco de dados](#estrutura-de-banco-de-dados)  
+8. [Endpoints REST](#endpoints-rest)  
+9. [Fluxo MQTT](#fluxo-mqtt)  
+10. [Build offline / NuGet local](#build-offline--nuget-local)  
+11. [Teste rápido](#teste-rápido)  
+12. [Roadmap](#roadmap)  
+13. [Contribuindo](#contribuindo)  
+14. [Licença](#licença)  
 
-Pré-requisitos
+---
 
-Instalação e execução
+## Visão geral
 
-Configurações
+O **VirtualBorder** resolve um problema comum em linhas de produção — saber, em tempo real, _onde_ cada dispositivo móvel (AGV, robô, empilhadeira, etc.) está e se ele ultrapassou zonas restritas (“fronteiras virtuais”).
 
-Estrutura de banco de dados
-
-Endpoints REST
-
-Fluxo MQTT
-
-Build offline / NuGet local
-
-Teste rápido
-
-Roadmap
-
-Contribuindo
-
-Licença
-
-Visão geral
-O VirtualBorder resolve um problema comum em linhas de produção — saber, em tempo real, onde cada dispositivo móvel (AGV, robô, empilhadeira, etc.) está e se ele ultrapassou zonas restritas (“fronteiras virtuais”).
 Ele:
 
-Consome dados de posição via MQTT (virtualborder/posto) enviados por ESP32, PLC ou Gateway.
+* **Consome** dados de posição via **MQTT** (`virtualborder/posto`) enviados por ESP32, PLC ou Gateway.  
+* **Persiste** leituras em **SQLite** para auditoria e analytics.  
+* **Renderiza** um **mapa interativo** (Leaflet) mostrando:  
+  * Última posição & timestamp por MAC.  
+  * Histórico de trilha (setas de deslocamento).  
+  * Cores verde / laranja / vermelho conforme tempo desde a última leitura.  
+* **Expõe** uma **Web API RESTful** para MES/WMS:  
+  * Cadastro de mapas (`/api/maps`)  
+  * Importação de ordens & produtos  
+  * Consulta de dispositivos e eventos  
 
-Persiste leituras em SQLite para auditoria e analytics.
+---
 
-Renderiza um mapa interativo (Leaflet) mostrando:
+## Arquitetura
 
-Última posição & timestamp por MAC.
-
-Histórico de trilha (setas de deslocamento).
-
-Cores verde / laranja / vermelho conforme tempo desde a última leitura.
-
-Expõe uma Web API RESTful para MES/WMS:
-
-Cadastro de mapas (/api/maps)
-
-Importação de ordens & produtos
-
-Consulta de dispositivos e eventos
-
-Arquitetura
-text
-Copiar
-Editar
+```text
 ┌─────────────┐     MQTT       ┌─────────────┐
 │  Disposit.  │───(broker)───▶│ VirtualBorder│
 │  (ESP/PLC)  │               │  Web API     │
@@ -75,33 +59,41 @@ Editar
                               ┌─────▼──────┐
                               │  SQLite    │
                               └────────────┘
-Camada Web/API: ASP.NET Core Minimal API + Razor Pages (painel).
+```
 
-Camada de dados: Entity Framework Core (code-first).
+* **Camada Web/API**: ASP.NET Core Minimal API + Razor Pages (painel).  
+* **Camada de dados**: Entity Framework Core (code‑first).  
+* **Serviço MQTT**: [MQTTnet](https://github.com/dotnet/MQTTnet), rodando em background.  
+* **Frontend**: Razor + Leaflet + Fetch/AJAX.
 
-Serviço MQTT: MQTTnet, rodando em background.
+---
 
-Frontend: Razor + Leaflet + AJAX (fetch API).
+## Funcionalidades principais
 
-Funcionalidades principais
+| Categoria              | Descrição resumida |
+|------------------------|--------------------|
+| **Rastreamento**       | Consome tópicos MQTT, grava última posição; atualiza SSE/WebSocket na UI. |
+| **Mapa dinâmico**      | Zoom, camadas OSM, filtros por MAC/linha, legenda de latência (cores). |
+| **Importação CSV/JSON**| Endpoints para ordens (`/api/orders`) e produtos (`/api/items`), validador de schema. |
+| **Alertas**            | Webhook/Telegram opcional quando dispositivo cruza fronteira. |
+| **Modo Offline**       | NuGet local + Docker Compose (Mosquitto + app) |
 
-Categoria	Descrição resumida
-Rastreamento	Consome tópicos MQTT, grava última posição; atualiza WebSocket/Server-Sent Events para UI.
-Mapa dinâmico	Zoom, camadas OSM, filtros por MAC/linha, legenda de latência (cores).
-Importação CSV/JSON	Endpoints para ordens (/api/orders) e produtos (/api/items), validador de schema.
-Alertas	Trigger opcional para enviar webhook/Telegram quando dispositivo cruza fronteira.
-Modo Offline	NuGet local + Docker Compose para broker Mosquitto e banco SQLite gravado em volume.
-Pré-requisitos
+---
 
-Software	Versão mínima
-.NET SDK	8.0.x (ou 7.0.x)
-SQLite	Nenhum client necessário – binário embutido
-Node/NPM	Opcional — só para gerar assets front-end
-Broker MQTT	Testado com Eclipse Mosquitto 2.x
-Instalação e execução
-bash
-Copiar
-Editar
+## Pré‑requisitos
+
+| Software        | Versão mínima |
+|-----------------|---------------|
+| **.NET SDK**    | 8.0.x (ou 7.0.x) |
+| **SQLite**      | Nenhum client necessário – binário embutido |
+| **Node/NPM**    | _Opcional_ – construir assets front‑end |
+| **Broker MQTT** | Eclipse **Mosquitto 2.x** |
+
+---
+
+## Instalação e execução
+
+```bash
 # 1. Clone
 git clone https://github.com/<seu-usuario>/VirtualBorder.git
 cd VirtualBorder
@@ -115,19 +107,24 @@ dotnet ef database update
 
 # 4. Run!
 dotnet run --project src/VirtualBorder
-A API sobe em http://localhost:5050 (por padrão). A UI pode ser acessada em http://localhost:5050/dashboard.
+```
 
-Docker rápido
-bash
-Copiar
-Editar
-docker compose up -d          # inclui Mosquitto + app .NET
-Configurações
-Arquivo appsettings.json (ou variáveis de ambiente):
+A aplicação sobe em `http://localhost:5050`.  
+O painel está em `http://localhost:5050/dashboard`.
 
-jsonc
-Copiar
-Editar
+### Docker rápido
+
+```bash
+docker compose up -d    # inclui Mosquitto + app .NET
+```
+
+---
+
+## Configurações
+
+`appsettings.json`:
+
+```jsonc
 {
   "ConnectionStrings": {
     "Default": "Data Source=virtualborder.db"
@@ -142,30 +139,43 @@ Editar
     "TileProvider": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
   }
 }
-Estrutura de banco de dados
+```
 
-Tabela	Campos principais	Descrição
-devices	id, mac, nome, created_at	Cadastro dos dispositivos
-maps	id, nome, png_blob	Mapas em PNG para sobrepor
-readings	id, mac, lat, lon, dataHora	Últimas leituras (MQTT)
-orders	order, client, type, launch, ...	Importações CSV
-Rodar dotnet ef migrations add Init caso queira recriar do zero.
+Variáveis de ambiente sobrepõem os valores acima.
 
-Endpoints REST
+---
 
-Método	Rota	Descrição
-GET	/api/devices	Lista dispositivos
-POST	/api/devices	Cria/edita dispositivo
-GET	/api/maps/{id}	Retorna mapa PNG/base64
-POST	/api/maps	Faz upload de novo mapa
-POST	/api/orders/import	Importa CSV de ordens
-GET	/api/readings/latest	Última posição de cada MAC
-Swagger UI disponível em /swagger.
+## Estrutura de banco de dados
 
-Fluxo MQTT
-text
-Copiar
-Editar
+| Tabela      | Campos principais                     | Descrição                        |
+|-------------|---------------------------------------|----------------------------------|
+| `devices`   | `id, mac, nome, created_at`           | Cadastro dos dispositivos        |
+| `maps`      | `id, nome, png_blob`                  | Mapas para sobreposição          |
+| `readings`  | `id, mac, lat, lon, dataHora`         | Leituras MQTT                    |
+| `orders`    | `order, client, type, launch, …`      | Importações de ordens            |
+
+Para recriar: `dotnet ef migrations add Init`.
+
+---
+
+## Endpoints REST
+
+| Método | Rota                       | Descrição                                 |
+|--------|----------------------------|-------------------------------------------|
+| GET    | `/api/devices`             | Lista dispositivos                        |
+| POST   | `/api/devices`             | Cria/edita dispositivo                    |
+| GET    | `/api/maps/{id}`           | Retorna mapa PNG/base64                   |
+| POST   | `/api/maps`                | Upload de novo mapa                       |
+| POST   | `/api/orders/import`       | Importa CSV de ordens                     |
+| GET    | `/api/readings/latest`     | Última posição de cada MAC                |
+
+_Documentação Swagger em `/swagger`._
+
+---
+
+## Fluxo MQTT
+
+```text
 Tópico: virtualborder/posto
 Payload (JSON):
 {
@@ -174,63 +184,68 @@ Payload (JSON):
   "lon": -60.98765,
   "dataHora": "2025-04-24T21:00:00-03:00"
 }
-QoS recomendado: 1 (at-least-once).
+```
 
-O serviço grava em readings e dispara atualização SSE para o painel.
+* **QoS** recomendado: `1`.  
+* A leitura é gravada e o painel é atualizado via Server‑Sent Events.
 
-Build offline / NuGet local
-Se a máquina alvo não tem acesso à internet:
+---
 
-Baixe os pacotes na máquina online
-dotnet restore --runtime win-x64 --no-dependencies --packages ./nupkgs
+## Build offline / NuGet local
 
-Copie a pasta nupkgs para a máquina offline.
+1. Na máquina online:  
+   ```bash
+   dotnet restore --runtime win-x64 --packages ./nupkgs
+   ```
+2. Copie `nupkgs` para a máquina offline.  
+3. Crie `nuget.config`:
 
-Adicione/edite nuget.config:
+   ```xml
+   <configuration>
+     <packageSources>
+       <add key="OfflineFeed" value="C:\nuget\nupkgs" />
+     </packageSources>
+   </configuration>
+   ```
 
-xml
-Copiar
-Editar
-<?xml version="1.0" encoding="utf-8"?>
-<configuration>
-  <packageSources>
-    <add key="OfflineFeed" value="C:\nuget\nupkgs" />
-  </packageSources>
-</configuration>
-Rode dotnet restore --source OfflineFeed.
+4. Rode `dotnet restore --source OfflineFeed`.
 
-Teste rápido
-bash
-Copiar
-Editar
-# Publicar fake via MQTT
-mosquitto_pub -h 127.0.0.1 -t virtualborder/posto -m '{
+---
+
+## Teste rápido
+
+```bash
+mosquitto_pub -h localhost -t virtualborder/posto -m '{
   "mac":"DE:AD:BE:EF:01",
   "lat":-3.1201,
   "lon":-60.0123,
   "dataHora":"'"$(date -Iseconds)"'"
 }'
+```
+
 Abra o dashboard: o marcador deve piscar em verde.
 
-Roadmap
- Auth/JWT para API externa
+---
 
- Logs de fronteiras ultrapassadas
+## Roadmap
 
- Relatórios PDF (tempo em cada zona)
+- [ ] Autenticação JWT  
+- [ ] Logs de fronteiras ultrapassadas  
+- [ ] Relatórios PDF (tempo em cada zona)  
+- [ ] Exportar GPX/KML  
+- [ ] Docker multi‑arch (arm64/amd64)  
 
- Exportar GPX/KML
+---
 
- Docker multi-arch (arm64/amd64)
+## Contribuindo
 
-Contribuições são bem-vindas!
+1. Fork, crie branch (`feature/…`)  
+2. `dotnet test`  
+3. Abra Pull Request seguindo o template  
 
-Contribuindo
-Fork & branch (feature/nova-funcionalidade)
+---
 
-dotnet test (garanta que tudo passa)
+## Licença
 
-Abra um Pull Request seguindo o template.
-
-Licença
-Distribuído sob a licença MIT. Veja LICENSE para detalhes.
+Distribuído sob a licença **MIT**.  
+Consulte `LICENSE` para detalhes.
